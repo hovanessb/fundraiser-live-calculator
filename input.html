@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Donation Input</title>
+
+		<link rel="stylesheet" type="text/css" href="css/style.css" />
+		<link rel="stylesheet" type="text/css" href="css/custom-forms.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/fonts.css" />
+		<link rel="stylesheet" type="text/css" href="css/tailwind.min.css" />
+	</head>
+
+	<body class="leading-normal tracking-normal text-indigo-400 bg-cover bg-fixed" style="background-image: url('header.png');">
+		<form id="form" class="h-full" action="">
+			<input
+				id="input"
+				autocomplete="off"
+				class="h-full w-full text-5xl"			
+				placeholder="Amount" />
+			<button>Add</button>
+		</form> 
+
+		<script src="/socket.io/socket.io.js"></script>
+		<script>
+			const socket = io();
+			const input = document.getElementById("input");
+			const donation = document.getElementById("messages");
+			form.addEventListener("submit", (event) => {
+				event.preventDefault();
+				if (input.value && Number.isInteger(Number(input.value))) {
+					socket.emit("chat message", input.value);
+				}
+				input.value = "";
+			});
+		</script>
+	</body>
+	
+</html>

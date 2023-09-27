@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Fundraiser Thermometer</title>
+
+		<link rel="stylesheet" type="text/css" href="css/style.css" />
+		<link rel="stylesheet" type="text/css" href="css/custom-forms.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/fonts.css" />
+		<script src="js/tailwind.min.3.3.3.js" ></script>
+	</head>
+
+	<body class="leading-normal tracking-normal text-indigo-400 m-6 bg-cover bg-fixed" style="background-image: url('header.png');">
+		<canvas id="my-canvas" class="absolute w-full h-full top-0 left-0"></canvas>
+		<div id="fwk" class="h-full w-full absolute top-0 left-0"></div>
+		<div class="h-full">
+		  <!--Nav-->
+		  <div class="w-full container mx-auto">
+			 <div class="w-full flex items-center justify-between">
+				<a class="flex items-center text-white no-underline hover:no-underline font-bold text-2xl lg:text-4xl" href="#">
+				  YOUR FUNDRAISER EVENT!
+				</a>
+				<div class="flex w-1/2 justify-end content-center">
+				</div>
+			 </div>
+		  </div>
+  
+		  <!--Main-->
+		  <div style="padding-top: 15%;" container pt-42 mx-auto flex flex-wrap flex-col md:flex-row items-center">
+			 <!--Left Col-->
+			 <div class="flex flex-col place-items-center backdrop-blur-md max-w-[75%] rounded-md mx-auto justify-center overflow-y-hidden">
+				<h1 class="my-2 text-3xl md:text-9xl text-slate-100 opacity-95 font-bold leading-tight text-center">
+				  <span id="messages" class="bg-clip-text bg-gradient-to-r from-green-400 via-pink-500 to-purple-500">
+					0
+				  </span> 
+				</h1>
+				<p class="leading-normal text-slate-100 md:text-2xl mb-8 text-center ">
+				  DONATIONS MADE
+				</p> 
+			 </div>
+		  </div>
+	</div>
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="js/confetti.js"></script>
+		<script src="js/index.umd.js"></script>		
+		<script>
+			/**
+			 * Parse a localized number to a float.
+			 * @param {string} stringNumber - the localized number
+			 * @param {string} locale - [optional] the locale that the number is represented in. Omit this parameter to use the current locale.
+			 */
+			function parseLocaleNumber(stringNumber, locale) {
+				var thousandSeparator = Intl.NumberFormat(locale).format(11111).replace(/\p{Number}/gu, '');
+				var decimalSeparator = Intl.NumberFormat(locale).format(1.1).replace(/\p{Number}/gu, '');
+				const newString = stringNumber.replace('$','')	
+				console.log(newString)
+				console.log(thousandSeparator)
+				console.log(decimalSeparator)
+				return parseInt(newString
+					.replace(new RegExp('\\' + thousandSeparator, 'g'), '')
+					.replace(new RegExp('\\' + decimalSeparator), '.')
+				);
+			}
+			const container = document.querySelector('#fwk');
+			const fireworks = new Fireworks.default(container)
+			const formatter = Intl.NumberFormat('en-US', 
+					{style : 'currency', currency: 'USD', maximumFractionDigits: 0})
+
+			var confettiSettings = {target:"my-canvas", animate:true}
+			var confetti = new ConfettiGenerator(confettiSettings)
+			confetti.render();
+
+			const socket = io();
+			const donation = document.getElementById("messages");
+			socket.on("chat message", (msg) => {
+				let fwks = 0
+				if (Number(msg) <= 100){
+					fwks = 1
+				} else if (Number(msg) <= 500){
+					fwks = 5
+				} else if (Number(msg) <= 1000){
+					fwks = 10
+				} else if (Number(msg) <= 10000){
+					fwks = 20
+				} else if (Number(msg) <= 50000){
+					fwks = 30
+				} else if (Number(msg) <= 100000){
+					fwks = 50
+				} else if (Number(msg) > 100000){
+					fwks = 100
+					fireworks.launch(fwks)				
+				}
+				fireworks.launch(fwks)				
+				console.log(donation.textContent)
+				const converted = parseLocaleNumber(donation.textContent,'en-US')
+				console.log(converted)
+				donation.textContent = formatter.format(Number(converted) + Number(msg));
+			});
+		</script>
+	</body>
+</html>
